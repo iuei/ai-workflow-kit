@@ -1,6 +1,6 @@
 # 资产盘点：有什么、为什么留、怎么来的
 
-> 筛选依据：194 个会话 / 1369 条真实用户发言的复盘数据 + 30 条真实事故案例的提炼。
+> 筛选依据：194 个会话 / 1369 条真实用户发言的复盘数据 + 31 条真实事故案例的提炼。
 > 价值等级只反映「对减少返工、避免重复劳动」的贡献，不代表技术难度。
 
 ---
@@ -14,7 +14,7 @@
 | C1–C9 CSS 与组件 | 9 | [前端与组件规则.md](rules/前端与组件规则.md)（10 条） | [改前端并自证生效.md](playbooks/改前端并自证生效.md) | [verifying-ui-changes-in-browser](skills/verifying-ui-changes-in-browser/SKILL.md) |
 | D1–D6 数据与口径 | 6 | [数据与口径规则.md](rules/数据与口径规则.md)（10 条） | [改数据逻辑并在副本验证.md](playbooks/改数据逻辑并在副本验证.md) | [one-definition-per-metric](skills/one-definition-per-metric/SKILL.md) |
 | S1–S6 同步与外部接口 | 6 | [外部接口与同步规则.md](rules/外部接口与同步规则.md)（10 条） | [接入外部接口.md](playbooks/接入外部接口.md) | [never-swallowing-failures](skills/never-swallowing-failures/SKILL.md) |
-| P1–P5 进程与部署 | 5 | [进程与部署规则.md](rules/进程与部署规则.md)（15 条） | [上线与部署.md](playbooks/上线与部署.md) | [making-backend-changes-take-effect](skills/making-backend-changes-take-effect/SKILL.md) |
+| P1–P6 进程与部署 | 6 | [进程与部署规则.md](rules/进程与部署规则.md)（15 条） | [上线与部署.md](playbooks/上线与部署.md) | [making-backend-changes-take-effect](skills/making-backend-changes-take-effect/SKILL.md) |
 | T1–T4 测试与验收 | 4 | [测试与验收规则.md](rules/测试与验收规则.md)（10 条） | [排查改了没生效.md](playbooks/排查改了没生效.md)（跨领域通用） | — |
 | 194 会话复盘数据 | — | 决定规则的**优先级排序**（哪个坑最高频） | — | [tools/session-review/](tools/session-review/) |
 
@@ -32,7 +32,7 @@
 | 3 | [`playbooks/`](playbooks/)（5 个） | 流程 | 5 类高频任务的分步做法与判据 | 覆盖复盘里出现最多的 5 种任务形态 | ★★★★★ |
 | 4 | [`templates/AGENTS-项目约束.md`](templates/AGENTS-项目约束.md) | 模板 | 6 条最值钱约束，可整段追加 | 直接对应 73 / 47 / 13 / 27 / 24 条摩擦 | ★★★★★ |
 | 5 | [`tools/browser-probes/`](tools/browser-probes/)（7 个） | 工具 | 真实浏览器取证：几何、样式、交互、对比度、口径 | 多次「没有变化 / 不对齐」靠它定位根因 | ★★★★★ |
-| 6 | [`casebook/工程案例集.md`](casebook/工程案例集.md)（30 条） | 案例 | 规则的来源，含根因与规避 | 4 个月真实事故，数字均来自文档实测值 | ★★★★☆ |
+| 6 | [`casebook/工程案例集.md`](casebook/工程案例集.md)（31 条） | 案例 | 规则的来源，含根因与规避 | 4 个月真实事故，数字均来自文档实测值 | ★★★★☆ |
 | 7 | [`templates/交接文档模板.md`](templates/交接文档模板.md) | 模板 | 换会话 / 换 Agent 五分钟接手 | 交接类需求 6 条 + 你提过「内容过多」 | ★★★★☆ |
 | 8 | [`tools/session-review/`](tools/session-review/)（4 个） | 工具 | 会话复盘流水线，量化协作摩擦 | 本仓库全部统计数字的来源 | ★★★★☆ |
 | 9 | [`appendix/`](appendix/)（报告 + 图 + JSON） | 附录 | 统计口径与溯源，用于月度对比 | 194 会话 / 1369 条 / 12 项目 | ★★★☆☆ |
@@ -78,7 +78,7 @@
 | 把 `rules/` 每份压成「一页检查清单」 | 55 条规则全过一遍成本高 | 已有分档：每份文件末尾都带「提交前检查清单」，按领域取用即可 |
 | `playbooks/` 补「交接与接手」流程 | 交接需求 6 条 | 暂由 [`templates/交接文档模板.md`](templates/交接文档模板.md) 承担 |
 | 4 个技能各补一次 baseline 压力测试 | `writing-skills` 铁律：没观察过失败就不算会教 | 技能均为可用草稿，需单独一轮验证 |
-| 把 `casebook/` 扩到跨项目案例 | 其它项目也有同类事故（已抽样命中） | 当前只提炼了单个项目的 30 条；素材充足时可扩展 |
+| 把 `casebook/` 扩到跨项目案例 | 其它项目也有同类事故（已抽样命中） | 当前只提炼了单个项目的 31 条；素材充足时可扩展 |
 
 **判断原则**：新增内容前先问——它能不能让 `appendix/` 里的摩擦数字下降？
 不能的话，它属于「记录」，不属于「经验库」。

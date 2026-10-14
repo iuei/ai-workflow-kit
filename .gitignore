@@ -1,0 +1,11 @@
+# 临时产物与本机个人数据（不入库）
+*.jsonl
+*-digest.txt
+*.sqlite
+*.sqlite-journal
+.probe/
+node_modules/
+
+# 探针输出的截图（体积大，按需自行保留）
+*-before-*.png
+*-after-*.png

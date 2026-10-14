@@ -1,217 +1,113 @@
-# AI 工作流工具包
+# AI 协作经验库
 
-> 从 2026-06-18 ~ 2026-10-13 的 **194 个 AI 编码会话 / 1369 条真实用户发言 / 12 个项目**里复盘出来的、
-> 真正被反复用到的文档、技能与工具。每一项都标注 **作用** 与 **使用说明**。
-
----
-
-## 为什么是这几样（筛选依据）
-
-复盘本机全部 DSH + Codex 会话（剔除系统注入后统计，脚本见 `tools/session-review/`）得到三条结论：
-
-| 结论 | 数据 |
-| --- | --- |
-| 摩擦面很宽 | **51% 的会话**至少出现过一次摩擦信号 |
-| 你被当成验收器 | 纯确认/推进消息 170 条（12%）+ 验证类追问 173 条（13%） |
-| 最高频的坑不是"改错"，而是"没生效" | 服务中断/反复启动 73 条、同类问题要全量扫 47 条、口径不一致 13 条 |
-
-所以这个包里只放三类东西：**能消掉这些摩擦的规则与技能**、**能取证的工具**、**能沉淀经验的模板与案例**。
-没放进来的（一次性探针、项目业务脚本）都不具备跨项目复用价值。
+> **素材**：194 个 AI 编码会话 / 1369 条真实用户发言 / 12 个项目（2026-06 ~ 2026-10），
+> 经 30 条真实事故案例交叉验证。
+> **提炼结果**：4 个技能 · 55 条规则 · 5 个流程 · 2 份模板 · 11 个工具 · 1 份案例集。
+>
+> 这份仓库不记录「我们聊了什么」，只保留「**以后必须怎么做**」。
 
 ---
 
-## 内容清单
+## 三层结构（先读这里）
 
-| 目录 | 是什么 | 什么时候用 |
-| --- | --- | --- |
-| `skills/` | 可直接装入 AI 运行时的技能 | 每次改 UI / 交付前的自证动作 |
-| `tools/session-review/` | 会话复盘流水线（4 个脚本：提取 → 摘要 → 统计 → 出图） | 每月一次，量化协作摩擦 |
-| `tools/browser-probes/` | 真实浏览器取证脚本 | 用户说"没变化/不对齐/没生效"时 |
-| `templates/` | 交接文档与项目约束模板 | 新项目起步 / 换会话交接 |
-| `reports/` | 本次复盘报告与概览图 | 想回看数据与结论时 |
-| `casebook/` | 可复用踩坑案例集 | 动手前扫一眼，避免重复踩 |
+| 层 | 目录 | 回答的问题 | 什么时候用 |
+| --- | --- | --- | --- |
+| **行为约束** | [`skills/`](skills/README.md) | 遇到 X 时必须做 Y | 写代码 / 准备交付时，按技能 `description` 自动触发 |
+| **检查规则** | [`rules/`](rules/) | 必须遵守什么、怎么查出来 | 提交前逐条过；或整份追加进项目 `AGENTS.md` |
+| **操作流程** | [`playbooks/`](playbooks/) | 这件事分几步、每步的判据 | 接到对应任务时照着走 |
+| 模板 | [`templates/`](templates/) | 约束块怎么放、交接文档怎么写 | 新项目起步 / 换会话交接 |
+| 工具 | [`tools/`](tools/) | 怎么把证据量出来 | 需要取证或做复盘时 |
+| 案例 | [`casebook/工程案例集.md`](casebook/工程案例集.md) | 这些规则是怎么来的 | 想理解根因，或遇到相似现象 |
+| 附录 | [`appendix/`](appendix/) | 统计口径与溯源数据 | 想看数据、做月度对比 |
+
+**分工一句话**：规则说「不许做什么」，流程说「这件事怎么做」，技能说「什么时候别忘了做」。
 
 ---
 
 ## 1. 技能 · `skills/`
 
-### 1.1 `verifying-ui-changes-in-browser`
-
-**作用**：把"我改了代码"升级为"我在你会用的角色、视口、入口上跑过并量到了证据"。
-专治三类反复出现的返工：
-
-- 改了没生效（资源缓存 / 服务没重启 / 只改了一个分支）
-- 只改一处，同类位置还有好几个
-- 同一件事在统计与筛选里用了两个口径
-
-**使用说明**
-
-1. 安装（三选一，DSH 与 Claude Code 用 `skills` 目录，Codex 用 `skills` 或 `~/.agents/skills/`）：
-
-   ```bash
-   cp -r skills/verifying-ui-changes-in-browser ~/.dsh/skills/          # DSH
-   cp -r skills/verifying-ui-changes-in-browser ~/.claude/skills/       # Claude Code
-   cp -r skills/verifying-ui-changes-in-browser ~/.codex/skills/        # Codex
-   ```
-
-2. 触发方式：不需要手动调用。用户在对话里说「没有变化 / 还是没生效 / 只有一处生效 / 刷新后还是旧的 / 不对齐」，
-   或 Agent 准备宣称前端改动完成时，技能描述里的触发条件会命中。
-
-3. 配合 `tools/browser-probes/` 使用：技能给的是"验什么、按什么顺序排查"，
-   探针脚本负责"把证据量出来"。
-
-**状态**：草稿已可用。按 `writing-skills` 的铁律，正式定稿前建议补一次 baseline 压力测试
-（让一个没有该技能的 Agent 跑"改完 CSS 就宣称完成"的场景，记录它漏掉哪个分支）。
-
-**不含**：不替代通用测试纪律（那属于 `verification-before-completion`），也不做视觉设计决策（那属于设计类技能）。
-
----
-
-## 2. 工具 · `tools/`
-
-### 2.1 会话复盘 · `tools/session-review/`
-
-**作用**：把本机所有 AI 会话（DSH + Codex）变成可读的统计与报告，用来量化"我在哪些环节反复付出时间"。
-这是本包唯一的"元工具"——它产出的数据决定了其它内容该做什么。
-
-**使用说明**（在任意目录执行，脚本会自己找 `~/.dsh/sessions` 与 `~/.codex/sessions`）：
-
-```bash
-mkdir -p .probe          # 脚本把中间产物与报告写到当前目录的 .probe/
-```bash
-# 第 1 步：抽取某个项目的用户发言（参数是工作目录关键字）
-node tools/session-review/extract-sessions.mjs "物流数据监控"
-#   → .probe/session-user-messages.jsonl
-
-# 第 2 步：压成可通读的诉求序列 + 词频
-node tools/session-review/summarize-sessions.mjs
-#   → .probe/session-digest.txt
-
-# 第 3 步：生成统计报告（读上一步产出的 .probe/proj-*.jsonl）
-node tools/session-review/session-report.mjs
-#   → .probe/session-report.md / .probe/session-stats.json
-
-# 第 4 步（可选）：渲染一页概览图（数据驱动，数字自动与报告一致）
-node tools/session-review/render-chart.mjs
-#   → .probe/session-report.png / .probe/session-report.html
-```
-
-**口径与前置**
-
-- DSH 会话是 zstd 压缩的事件流，脚本用 `zstd -dc` 解压（macOS：`brew install zstd`）。
-- 第 4 步需要本机 Chrome 与 `playwright`；不跑也不影响前 3 步。
-- **系统注入必须剔除**（`extract-sessions.mjs` 已内置）：`<system-reminder>`、runtime context、
-  后台任务通知、Codex 审批代理模板都会被当成"用户消息"，不剔除会虚高 40% 以上
-  （实测某项目 208 条里 83 条是注入）。
-- 分类基于关键词匹配，一条消息可命中多类；比例用于横向比较，不是精确占比。
-
-**建议频率**：每月一次，或一个大项目结束后一次。
-
-### 2.2 浏览器取证探针 · `tools/browser-probes/`
-
-**作用**：用真实 Chrome 量出可贴出来的证据（几何、样式、交互、对比度、请求），
-替代"读代码推断"。这些脚本是同一种写法的实例，改一改就能用于你的新页面。
-
-**通用前置**：本机装了 Chrome 与 `playwright`；探针默认连 `http://127.0.0.1:3000`，用 `PROBE_BASE` 指向临时实例。
-**探针账号一律走环境变量**（通用工具里不写死任何项目的口令）：`PROBE_USER` / `PROBE_PASS` 必填，
-需要对比两个角色时再加 `PROBE_ADMIN_USER` / `PROBE_ADMIN_PASS` 与 `PROBE_MEMBER_USER` / `PROBE_MEMBER_PASS`。
-
-**验证数据类改动时用副本库 + 临时端口**，不要拿生产库试错：
-
-```bash
-cp data/app.sqlite .probe/test.sqlite
-DATABASE_PATH=./.probe/test.sqlite PORT=3211 node src/server.mjs &
-PROBE_BASE=http://127.0.0.1:3211 PROBE_USER=<账号> PROBE_PASS=<口令> \
-  node tools/browser-probes/sidebar-verify.mjs
-```
-
-| 脚本 | 作用 | 命令 |
+| 技能 | 治什么 | 支撑证据 |
 | --- | --- | --- |
-| `sidebar-baseline.mjs` | 基线测量：多角色 × 四视口的框架几何 + 截图，用于改前改后对比 | `PROBE_BASE=... PROBE_PREFIX=before node ...` |
-| `sidebar-verify.mjs` | 交互验收：折叠记忆、抽屉开合、焦点归还、对比度（42 项断言） | `PROBE_BASE=... node ...` |
-| `sidebar-prod-check.mjs` | 生产实例只读核验：确认刷新后新框架真的生效 | `PROD_BASE=http://127.0.0.1:3000 node ...` |
-| `verify-stat-card-filter.mjs` | 口径一致性：卡片数字必须等于点击后列表条数 | `PROBE_BASE=... node ...` |
-| `probe-table-metrics.mjs` | 表格实测：各列渲染宽高、表头/行高 | `node ... 1440`（视口宽度） |
-| `check-containing-block.mjs` | 诊断 `backdrop-filter`/`transform` 祖先把 `fixed` 后代改基准的经典坑 | `node ...` |
-| `repro-user-role.mjs` | 复现"多角色分支"缺陷：同一页面用两种账号各跑一遍 | `PROBE_BASE=... node ...` |
+| [`verifying-ui-changes-in-browser`](skills/verifying-ui-changes-in-browser/SKILL.md) | 改了 UI 但用户看不到、只改了一处 | 「改了没生效」24 条 +「服务未生效」73 条 +「同类问题全量扫」47 条 |
+| [`making-backend-changes-take-effect`](skills/making-backend-changes-take-effect/SKILL.md) | 改了服务端，跑着的还是旧实例 | 服务中断 / 反复启动 73 条（跨 6 项目）；「重启」在文档中出现 49 次 |
+| [`never-swallowing-failures`](skills/never-swallowing-failures/SKILL.md) | 失败被静默吞掉，只看到「没有数据」 | 令牌失效被吞 → 定时同步连败 **698 轮**；`catch {}` 致每轮 **41 条**失败无法诊断 |
+| [`one-definition-per-metric`](skills/one-definition-per-metric/SKILL.md) | 同一个词两处口径，显示错数字 | 「未签收」卡片 15 票 vs 列表 173 票 |
 
-**写自己的探针时，照这个骨架**：起临时实例 → 登录 → 采集 `getBoundingClientRect()` 与
-`getComputedStyle()` → 截图 → 断言 → 退出码非 0 即失败。
+**安装**（三选一）：
 
----
+```bash
+cp -r skills/* ~/.dsh/skills/       # DSH
+cp -r skills/* ~/.claude/skills/    # Claude Code
+cp -r skills/* ~/.codex/skills/     # Codex（也认 ~/.agents/skills/）
+```
 
-## 3. 模板 · `templates/`
-
-### 3.1 `交接文档模板.md`
-
-**作用**：换会话 / 换 Agent / 隔几天回来时，5 分钟接上进度。你过去提过"交接文档内容过多"，
-所以模板强制四段结构，历史交付移到归档文件。
-
-**使用说明**：复制到项目根目录命名 `交接文档.md`；每完成一个阶段只改「当前状态 / 下一步」两段；
-一个月或 20 次交付后，把旧内容剪到 `docs/交接归档-<月份>.md`。
-
-### 3.2 `AGENTS-项目约束.md`
-
-**作用**：把复盘里最高频的三类摩擦写成硬约束，追加到项目 `AGENTS.md` 末尾即可生效：
-重启纪律（改了服务端必须重启并贴日志时间戳）、全量扫同类（修复类交付附同类位置清单）、
-口径唯一（一个业务概念一个定义 + 互校断言）、验收清单（交付物的一部分）。
-
-**使用说明**：整段追加到项目 `AGENTS.md`，或按项目裁剪。这些规则是写给 Agent 看的，越具体越有效
-（"必须附启动日志时间戳"比"注意重启"有效得多）。
+**使用**：不需要手动调用。触发条件写在每个技能的 `description` 里，命中即加载。
+例：用户说「点击未签收卡片没有筛选出数据」→ 命中 `one-definition-per-metric`。
 
 ---
 
-## 4. 报告 · `reports/`
+## 2. 规则 · `rules/`（5 份 / 55 条）
 
-| 文件 | 说明 |
+| 文件 | 条数 | 治什么 | 最致命的一条 |
+| --- | ---: | --- | --- |
+| [前端与组件规则.md](rules/前端与组件规则.md) | 10 | 层叠覆盖、包含块、组件插槽与高度、字体与尺寸、局部刷新 | R2 fixed 浮层的祖先不得有 `backdrop-filter` / `transform` |
+| [数据与口径规则.md](rules/数据与口径规则.md) | 10 | 口径唯一、行级主键、级联删除、字段清洗、JOIN 命中率、聚合回退 | R1 一个业务概念只保留一处口径定义 |
+| [外部接口与同步规则.md](rules/外部接口与同步规则.md) | 10 | 限流、调用量下推、同步互斥、令牌自愈、失败可观测 | R1 失败不得静默：错误体必须透出 |
+| [进程与部署规则.md](rules/进程与部署规则.md) | 15 | 重启自证、缓存策略、部署硬约束、启动隔离、配置语义 | R5 改了服务端代码必须重启并贴出启动日志时间戳 |
+| [测试与验收规则.md](rules/测试与验收规则.md) | 10 | 先取证后改、单测与真机分工、测试假信号、并发编辑纪律 | R1 先量后改，量值与改后量值一起交付 |
+
+**用法**：整份追加到项目 `AGENTS.md`；或作为 code review / 提交前自查清单。
+每份文件末尾都带一份可勾选的检查清单。
+
+---
+
+## 3. 流程 · `playbooks/`（5 个）
+
+| 流程 | 什么时候用 | 做完手上有什么 |
+| --- | --- | --- |
+| [排查改了没生效.md](playbooks/排查改了没生效.md) | 用户说「没有变化 / 没生效 / 还是旧的」 | 一句分层结论（生效层 / 命中层 / 分支层）+ 该层命令输出 |
+| [改前端并自证生效.md](playbooks/改前端并自证生效.md) | 改完 CSS / 组件 / 响应式，准备说「已完成」之前 | 多角色 × 多视口截图 + 关键量值 |
+| [改数据逻辑并在副本验证.md](playbooks/改数据逻辑并在副本验证.md) | 改 SQL、迁移、清库、重拉、批量补数 | 副本演练结果 + 生产执行方案 |
+| [接入外部接口.md](playbooks/接入外部接口.md) | 对接新的外部 API 或给同步器加接口 | 字段探测结果 + 限流参数 + 小批量试跑数据 |
+| [上线与部署.md](playbooks/上线与部署.md) | 部署到新的内网机器 / 换机迁移 | 可用的服务 + 上线自检清单通过 |
+
+每个流程都写明「每步的判据」，没有产出的流程不算流程。
+
+---
+
+## 4. 模板 · `templates/`
+
+| 文件 | 作用 |
 | --- | --- |
-| `session-report.md` | 完整复盘报告：规模与时间跨度、诉求类型、摩擦信号、流程偏好、会话长度、按天活跃度、建议、口径局限 |
-| `session-report.png` | 一页概览图（适合贴进周报或存档） |
-| `session-stats.json` | 机器可读统计，便于做趋势对比 |
-
-**使用说明**：想看结论直接读 `session-report.md` 第七节「建议」；
-想做趋势就在下个月重跑 `tools/session-review/`，把两份 `session-stats.json` 对比。
+| [AGENTS-项目约束.md](templates/AGENTS-项目约束.md) | 6 条最值钱的约束，可整段追加进项目 `AGENTS.md` |
+| [交接文档模板.md](templates/交接文档模板.md) | 四段式交接（当前状态 / 下一步 / 阻塞 / 踩坑），换会话五分钟接手 |
 
 ---
 
-## 5. 案例集 · `casebook/`
+## 5. 工具 · `tools/`
 
-**作用**：把 4 个月里踩过的工程坑提炼成「现象 → 根因 → 规避方式 → 适用场景」，
-动手前扫一眼就能避开重复的坑。**30 条，分 5 组**：CSS 与组件（9）、数据与口径（6）、
-同步与外部接口（6）、进程与部署（5）、测试与验收（4），结尾附「最高频的三个坑」及排序依据。
-
-三个最高频的坑（有 grep 计数支撑）：
-
-1. **改了却没生效**（重启 49 次 / 缓存 14 次）——后端未重启、前端被缓存、CSS 被更靠后的块覆盖。
-2. **同一概念两处口径不同**（口径 43 次）——不报错，只显示空白或错数字，最隐蔽。
-3. **失败被静默吞掉**（静默 12 次，影响面最大）——`catch {}` 让定时任务连败 698 轮而日志无痕。
-
-**使用说明**：作为参考手册查阅，不必通读；条目按技术主题编号（C/D/S/P/T）便于检索；
-每踩一个新坑就往里加一条，保持它是最新的。案例虽来自单个项目，但根因与规避方式对同类栈通用。
-
-**文件**：`工程案例集.md`
+| 目录 | 作用 | 用法要点 |
+| --- | --- | --- |
+| [browser-probes/](tools/browser-probes/) | 7 个真实浏览器取证脚本（基线测量、交互验收、口径核对、表格度量、包含块诊断、多角色复现） | 账号走 `PROBE_USER` / `PROBE_PASS` 环境变量；`PROBE_BASE` 指向临时实例 |
+| [session-review/](tools/session-review/) | 会话复盘流水线：提取 → 摘要 → 统计 → 出图 | 每月跑一次，量化协作摩擦（需要 `zstd`） |
 
 ---
 
-## 放进远程仓库（两种方式）
+## 6. 案例 · `casebook/`
 
-**方式 A：独立仓库（推荐）**
+[工程案例集.md](casebook/工程案例集.md)：**30 条**真实事故，按「现象 → 根因 → 规避方式 → 适用场景」写成，
+分 5 组（CSS 与组件 9 / 数据与口径 6 / 同步与外部接口 6 / 进程与部署 5 / 测试与验收 4），
+结尾是「最高频的三个坑」及排序依据。
 
-```bash
-cd ai-workflow-kit
-git init && git add . && git commit -m "chore: AI 工作流工具包（技能 + 工具 + 模板 + 复盘报告）"
-git remote add origin <你的仓库地址>
-git push -u origin main
-```
+它是**规则的来源**：想不通某条规则为什么存在时，回来看对应编号的案例。
 
-**方式 B：并入现有项目仓库**
+---
 
-```bash
-cp -r ai-workflow-kit <你的项目>/docs/ai-workflow
-```
+## 7. 附录 · `appendix/`
 
-注意：`tools/` 里引用了 `~/.dsh/sessions`、`~/.codex/sessions` 这类本机路径，
-属于**个人工作流资产**，不要和业务代码混在同一层目录里。
+[复盘报告](appendix/session-report.md)（8 节：规模 / 类型 / 摩擦 / 偏好 / 会话长度 / 活跃度 / 建议 / 口径局限）、
+[概览图](appendix/session-report.png)、[统计 JSON](appendix/session-stats.json)、
+[资产盘点表](INVENTORY.md)（价值等级、证据、刻意没入库的内容与原因）。
 
 ---
 
@@ -219,7 +115,21 @@ cp -r ai-workflow-kit <你的项目>/docs/ai-workflow
 
 | 频率 | 动作 |
 | --- | --- |
-| 每月 | 重跑 `tools/session-review/`，对比摩擦信号是否下降（目标：服务中断、同类问题全量扫这两项先降） |
-| 每次踩坑 | 往 `casebook/` 加一条 |
-| 每次改 UI 交付 | 用 `tools/browser-probes/` 留一份前后证据 |
+| 每次踩坑 | 往 `casebook/` 加一条；若它属于某个规则领域，同步在 `rules/` 里加一条可判定的规则 |
+| 每次改 UI / 改服务端 | 走一遍对应 `playbooks/`，留证据 |
+| 每月 | 重跑 `tools/session-review/`，对比摩擦信号是否下降（先盯「服务中断」与「同类问题全量扫」） |
 | 换会话 / 换 Agent | 用 `templates/交接文档模板.md` |
+
+**目标**：让 `appendix/` 里的摩擦数字逐月下降——这三层内容存在的唯一理由就是消掉它们。
+
+---
+
+## 放进远程仓库
+
+```bash
+git init && git add . && git commit -m "chore: 初始化 AI 协作经验库（技能 / 规则 / 流程 / 模板 / 工具 / 案例）"
+git remote add origin <你的仓库地址> && git push -u origin main
+```
+
+本仓库已带 `.gitignore`（排除会话语料、临时库、探针截图）。内容含个人工作习惯与项目内部细节，
+**建议私有**。

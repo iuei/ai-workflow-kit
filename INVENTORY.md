@@ -36,9 +36,11 @@
 | 7 | [`templates/交接文档模板.md`](templates/交接文档模板.md) | 模板 | 换会话 / 换 Agent 五分钟接手 | 交接类需求 6 条 + 你提过「内容过多」 | ★★★★☆ |
 | 8 | [`tools/session-review/`](tools/session-review/)（4 个） | 工具 | 会话复盘流水线，量化协作摩擦 | 本仓库全部统计数字的来源 | ★★★★☆ |
 | 9 | [`appendix/`](appendix/)（报告 + 图 + JSON） | 附录 | 统计口径与溯源，用于月度对比 | 194 会话 / 1369 条 / 12 项目 | ★★★☆☆ |
+| 10 | [`agent-preset/`](agent-preset/README.md)（DSH 预设） | 预设 | 把 11 条交付纪律注入 Agent persona，新会话即生效 | 覆盖复盘里最高频的 5 类摩擦（未生效 73 条、静默失败、口径 13 条等） | ★★★★★ |
 
 **建议上手顺序**：先把 [`templates/AGENTS-项目约束.md`](templates/AGENTS-项目约束.md) 追加进项目（成本最低），
-再把 `skills/` 装进运行时，之后在改 UI / 改数据时按对应 `playbooks/` 走一遍。
+再把 `skills/` 装进运行时、把 `agent-preset/` 装进 DSH（一次装完，之后每个新会话都带着纪律），
+之后在改 UI / 改数据时按对应 `playbooks/` 走一遍。
 
 ---
 
